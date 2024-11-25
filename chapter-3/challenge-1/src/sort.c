@@ -45,6 +45,32 @@ void merge_sort(int arr[], int left, int right) {
     }
 }
 
-void quick_sort() {
+void swap(int *v1, int *v2) {
+    int temp = *v1;
+    *v1 = *v2;
+    *v2 = temp;
+}
+
+void quicksort_recursion(int arr[], int low, int high) {
+    if (low < high) {
+        int pivot_index = partition(arr, low, high);
+        quicksort_recursion(arr, low, pivot_index - 1);
+        quicksort_recursion(arr, pivot_index + 1, high);
+    }
+}
+
+int partition(int array[], int low, int high) {
+    int mid = low + (high - low) / 2;
+    int i = low;
+    swap(&array[mid], &array[high]);
+    int pivot = array[high];
+    for (int j = low; j < high; j++) {
+        if (array[j] <= pivot) {
+            swap(&array[j], &array[i++]);
+        }
+    }
     
+    swap(&array[i], &array[high]);
+
+    return i;
 }
