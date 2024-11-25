@@ -21,4 +21,4 @@ build/%.o: src/%.c
 	@echo -- Compilation finished --
 # Clean up build and exec directories
 clean:
-	@-rm -f $(TARGET) $(OBJ)
+	@-rm -rf build/ exec/
