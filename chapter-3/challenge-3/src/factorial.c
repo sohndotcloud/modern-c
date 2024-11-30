@@ -1,6 +1,3 @@
-
-#define MAX_SIZE 100
-
 #include <stdlib.h>
 #include <limits.h>
 #include <stddef.h>

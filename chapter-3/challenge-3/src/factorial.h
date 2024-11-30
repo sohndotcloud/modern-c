@@ -1,3 +1,4 @@
+
 void initialize();
 void* allocate();
 void resize(int resize);
