@@ -10,7 +10,7 @@ $(TARGET): $(OBJS)
 	@echo "============="
 	@echo "Linking the target $@"
 	@echo "============="
-	@$(CC) $(CFLAGS) -o exec/$@ $^
+	@$(CC) $(CFLAGS) -o exec/$@ $^ -lgmp -lmpfr
 	@echo -- Link finished --
 # Rule for compiling .c files
 build/%.o: src/%.c
