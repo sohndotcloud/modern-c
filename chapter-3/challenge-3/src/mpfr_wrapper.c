@@ -1,8 +1,12 @@
 #include <mpfr.h>
 #include "mpfr_wrapper.h"
 
+void init2(mpfr_t n, int size) {
+    mpfr_init2(n, size);
+}
+
 void init(mpfr_t n) {
-    mpfr_init2(n, BLOCK_SIZE);
+    mpfr_init(n);
 }
 
 void set(mpfr_t n, mpfr_t m) {

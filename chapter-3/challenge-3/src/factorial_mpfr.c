@@ -3,6 +3,7 @@
 #include <stddef.h>
 #include <pthread.h> 
 #include <stdio.h>
+#include <math.h>
 #include "mpfr_wrapper.h"
 
 typedef struct  {
@@ -18,14 +19,19 @@ void initialize_m() {
     int size = 2;
     m = malloc(sizeof(factorial_mpfr_t));
     m->list = calloc(size, sizeof(mpfr_t*));
-    printf("List created...\n");
     for (int i = 0; i < size; i++) {
-        printf("Loading mpfr...%d\n", i);
         m->list[i] = malloc(sizeof(mpfr_t));
-        init(*m->list[i]);
+        init2(*m->list[i], 2);
         set_ui(*m->list[i], 1);
     }
     m->size = size;
+}
+
+unsigned int get_precision(int p) {
+    double precision = (p * log2(p) - 1.4427 * p);
+    unsigned int bits = (unsigned int) precision + 1;
+
+    return bits < 53 ? 53 : bits;
 }
 
 void resize_m(int resize) {
@@ -35,7 +41,7 @@ void resize_m(int resize) {
 
     unsigned long mpfr_block = sizeof(mpfr_t);
     int new_block_size = resize * mpfr_block;
-    printf("Block size changing from %lu >>>>> %d\n", m->size * mpfr_block, new_block_size);
+    printf("Block size changing from %lu >>>>> %d\n", m->size * mpfr_block * m->size, new_block_size);
     printf("Size changing %d >>>>> %d\n", m->size, resize);
     
     m->list = realloc(m->list, new_block_size);
@@ -45,8 +51,14 @@ void resize_m(int resize) {
     }
 
     for(int i = m->size; i <= resize; i++) {
+        int bits = get_precision(i);
         m->list[i] = malloc(mpfr_block);
-        init(*m->list[i]);
+        if (m->list == NULL) {
+            fprintf(stderr, "Reallocation failed\n");
+            return;
+        }
+
+        init2(*m->list[i], bits);
         set_ui(*m->list[i], 1);
     }
     m->size = resize;
@@ -62,7 +74,7 @@ mpfr_t* factorial_m(int num) {
     }
     
     mpfr_t* factorial = malloc(1 * sizeof(mpfr_t));
-    init(*factorial);
+    init2(*factorial, get_precision(num));
     set(*factorial, *m->list[0]);
     num++;
 
@@ -84,7 +96,7 @@ mpfr_t* factorial_m(int num) {
 void clean_up_m() {
     if (m == NULL || m->list == NULL) return;
 
-    for (int i = 0; m->size > i; i++) {
+    for (int i = 0; i < m->size; i++) {
         if (m->list[i] != NULL) {
             clear(*m->list[i]);
             free(m->list[i]);
@@ -92,5 +104,6 @@ void clean_up_m() {
     }
 
     free(m->list);
+    m->list = NULL;
     m->size = 0;
 }
