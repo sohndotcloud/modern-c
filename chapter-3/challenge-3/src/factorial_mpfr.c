@@ -5,6 +5,9 @@
 #include <stdio.h>
 #include <math.h>
 #include "mpfr_wrapper.h"
+#include "factorial_mpfr.h"
+
+// factorial_mpfr.c
 
 typedef struct  {
     mpfr_t ** list;
@@ -30,7 +33,9 @@ void initialize_m() {
 unsigned int get_precision(int p) {
     double precision = (p * log2(p) - 1.4427 * p);
     unsigned int bits = (unsigned int) precision + 1;
-
+    if (bits > 100) {
+        bits = 100;
+    }
     return bits < 53 ? 53 : bits;
 }
 
@@ -64,8 +69,8 @@ void resize_m(int resize) {
     m->size = resize;
 }
 
-mpfr_t* factorial_m(int num) {
-    if (num < 0 && num > INT_MAX) {
+mpfr_t* factorial_m(mpfr_t* factorial, int base) {
+    if (base < 0 && base >= 300) {
         return NULL;
     }
 
@@ -73,18 +78,17 @@ mpfr_t* factorial_m(int num) {
         initialize_m();
     }
     
-    mpfr_t* factorial = malloc(1 * sizeof(mpfr_t));
-    init2(*factorial, get_precision(num));
+    init2(*factorial, get_precision(base));
     set(*factorial, *m->list[0]);
-    num++;
+    base++;
 
-    if (m->size > num) {
-        return m->list[num];
+    if (m->size > base) {
+        return m->list[base];
     } else {
         int index = m->size - 1;
         set(*factorial, *m->list[index]);
-        resize_m(num);
-        for (int i = index; i <= num; i++) {
+        resize_m(base);
+        for (int i = index; i <= base; i++) {
             mul_ui(*factorial, *factorial, i);
             set(*m->list[i], *factorial);
         }
@@ -96,14 +100,20 @@ mpfr_t* factorial_m(int num) {
 void clean_up_m() {
     if (m == NULL || m->list == NULL) return;
 
-    for (int i = 0; i < m->size; i++) {
-        if (m->list[i] != NULL) {
-            clear(*m->list[i]);
-            free(m->list[i]);
-        }
+    for (int i = 0; i <= m->size; i++) {
+        free_mpfr_m(m->list[i]);
+        m->list[i] = NULL;
     }
 
     free(m->list);
     m->list = NULL;
     m->size = 0;
+    free(m);
+}
+
+void free_mpfr_m(mpfr_t* n) {
+    if (n != NULL) {
+        clear(*n);
+        free(n);
+    }
 }

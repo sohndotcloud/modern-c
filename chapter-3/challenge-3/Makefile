@@ -12,7 +12,7 @@ $(TARGET): $(OBJS)
 	@echo "============="
 	@echo "Linking the target $@"
 	@echo "============="
-	@$(CC) $(CFLAGS) $(DFLAGS) -o exec/$@ $^ 
+	@$(CC) $(CFLAGS) $(DFLAGS) -o exec/$@ $^
 	@echo -- Link finished --
 # Rule for compiling .c files
 build/%.o: src/%.c
